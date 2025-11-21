@@ -1,10 +1,20 @@
 @echo off
-ECHO Running Automated System Health Monitor...
+ECHO Running Automated System Health Monitor (ASHM)...
 
-:: This command launches the PowerShell script silently, bypassing execution policies for the current session.
-PowerShell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0windows_health_monitor.ps1"
+:: Checks if the PowerShell script exists in the same directory
+IF NOT EXIST "windows_health_monitor.ps1" (
+ECHO ERROR: The PowerShell script 'windows_health_monitor.ps1' was not found.
+PAUSE
+EXIT /B 1
+)
+
+:: Execute the PowerShell script.
+:: -ExecutionPolicy Bypass: Temporarily bypasses execution policy for the script.
+:: -File: Specifies the script to run.
+:: -NoProfile: Prevents loading the current user profile, speeding up execution.
+:: -WindowStyle Hidden: Runs the PowerShell window silently. Change to -WindowStyle Normal if you want to see the progress.
+PowerShell.exe -NoProfile -ExecutionPolicy Bypass -File "windows_health_monitor.ps1"
 
 ECHO.
-ECHO COMPLETE! A new HTML report has been generated in this folder.
-ECHO Press any key to close this window...
-pause > NUL
+ECHO ASHM report generation complete. The HTML file should open automatically.
+PAUSE
