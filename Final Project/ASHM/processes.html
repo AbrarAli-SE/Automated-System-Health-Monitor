@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASHM - Process Monitor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-950 text-gray-100">
+    <nav class="bg-gray-900 border-b border-gray-800 px-6 py-4">
+        <div class="flex items-center justify-between max-w-7xl mx-auto">
+            <a href="/"
+                class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">ASHM</a>
+            <a href="/" class="text-gray-400 hover:text-white transition">← Back to Hub</a>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-6 py-8 max-w-7xl">
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold mb-2">Process Monitor</h1>
+            <p class="text-gray-400">Live tracking of running processes and resource consumption</p>
+        </div>
+
+        <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold">Running Processes (Top 15 by CPU)</h2>
+                <div class="text-sm text-gray-400">Auto-refresh: <span class="text-green-400">ON</span></div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-700">
+                        <tr>
+                            <th class="px-4 py-3 text-left">Process Name</th>
+                            <th class="px-4 py-3 text-right">PID</th>
+                            <th class="px-4 py-3 text-right">CPU Time (s)</th>
+                            <th class="px-4 py-3 text-right">Memory (MB)</th>
+                            <th class="px-4 py-3 text-right">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="processList" class="divide-y divide-gray-700">
+                        <tr>
+                            <td colspan="5" class="text-center py-8 text-gray-500">Loading processes...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function updateProcesses() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+
+                let html = '';
+                data.processes.forEach(proc => {
+                    const memClass = proc.MemoryMB > 500 ? 'text-red-400' : proc.MemoryMB > 200 ? 'text-yellow-400' : 'text-green-400';
+                    const cpuClass = proc.CPU > 100 ? 'text-red-400' : proc.CPU > 50 ? 'text-yellow-400' : 'text-blue-400';
+
+                    html += `
+                        <tr class="hover:bg-gray-750">
+                            <td class="px-4 py-3 font-semibold">${proc.Name}</td>
+                            <td class="px-4 py-3 text-right text-gray-400">${proc.PID}</td>
+                            <td class="px-4 py-3 text-right ${cpuClass} font-bold">${proc.CPU}</td>
+                            <td class="px-4 py-3 text-right ${memClass} font-bold">${proc.MemoryMB}</td>
+                            <td class="px-4 py-3 text-right"><span class="px-2 py-1 rounded bg-green-600 text-xs">Running</span></td>
+                        </tr>
+                    `;
+                });
+
+                document.getElementById('processList').innerHTML = html;
+            } catch (error) {
+                console.error('Failed to update processes:', error);
+            }
+        }
+
+        updateProcesses();
+        setInterval(updateProcesses, 2000);
+    </script>
+</body>
+
+</html>

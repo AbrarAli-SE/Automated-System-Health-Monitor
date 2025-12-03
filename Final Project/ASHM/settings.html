@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASHM - Alert Settings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-950 text-gray-100">
+    <nav class="bg-gray-900 border-b border-gray-800 px-6 py-4">
+        <div class="flex items-center justify-between max-w-7xl mx-auto">
+            <a href="/"
+                class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">ASHM</a>
+            <a href="/" class="text-gray-400 hover:text-white transition">← Back</a>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-6 py-8 max-w-4xl">
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold mb-2">📧 Email Alert Settings</h1>
+            <p class="text-gray-400">Configure threshold alerts and notification preferences</p>
+        </div>
+
+        <div class="bg-gray-800 rounded-xl p-8 border border-gray-700 mb-8">
+            <h2 class="text-2xl font-bold mb-6">Email Configuration</h2>
+            <form id="emailForm" class="space-y-6">
+
+                <div>
+                    <label class="block text-sm font-semibold mb-2">📬 Your Email (to receive alerts)</label>
+                    <input type="email" id="recipientEmail" required
+                        class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg focus:border-blue-500 focus:outline-none"
+                        placeholder="your-email@example.com">
+                    <p class="text-xs text-gray-500 mt-1">Alerts will be sent to this email address</p>
+                </div>
+
+            </form>
+        </div>
+
+        <div class="bg-gray-800 rounded-xl p-8 border border-gray-700 mb-8">
+            <h2 class="text-2xl font-bold mb-6">⚙️ Alert Configuration</h2>
+            <p class="text-sm text-gray-400 mb-6">Enable/disable specific alerts and set thresholds. At least one must
+                be enabled.</p>
+
+            <div class="space-y-6">
+                <div class="flex items-center justify-between p-4 bg-gray-900 rounded-lg border border-gray-700">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                            <h3 class="font-bold text-lg">CPU Usage Alert</h3>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="enableCPU" class="sr-only peer" checked>
+                                <div
+                                    class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                                </div>
+                            </label>
+                        </div>
+                        <p class="text-sm text-gray-400">Send email when CPU usage exceeds threshold</p>
+                    </div>
+                    <div class="ml-6">
+                        <label class="block text-xs text-gray-500 mb-1">Threshold</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="cpuThreshold" min="50" max="100" value="85"
+                                class="w-20 px-3 py-2 bg-gray-800 border border-gray-600 rounded text-center">
+                            <span class="text-lg font-bold">%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between p-4 bg-gray-900 rounded-lg border border-gray-700">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                            <h3 class="font-bold text-lg">RAM Usage Alert</h3>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="enableRAM" class="sr-only peer" checked>
+                                <div
+                                    class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600">
+                                </div>
+                            </label>
+                        </div>
+                        <p class="text-sm text-gray-400">Send email when RAM usage exceeds threshold</p>
+                    </div>
+                    <div class="ml-6">
+                        <label class="block text-xs text-gray-500 mb-1">Threshold</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="ramThreshold" min="50" max="100" value="85"
+                                class="w-20 px-3 py-2 bg-gray-800 border border-gray-600 rounded text-center">
+                            <span class="text-lg font-bold">%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between p-4 bg-gray-900 rounded-lg border border-gray-700">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                            <h3 class="font-bold text-lg">Disk Usage Alert</h3>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="enableDisk" class="sr-only peer" checked>
+                                <div
+                                    class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-600">
+                                </div>
+                            </label>
+                        </div>
+                        <p class="text-sm text-gray-400">Send email when disk usage exceeds threshold</p>
+                    </div>
+                    <div class="ml-6">
+                        <label class="block text-xs text-gray-500 mb-1">Threshold</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="diskThreshold" min="50" max="100" value="90"
+                                class="w-20 px-3 py-2 bg-gray-800 border border-gray-600 rounded text-center">
+                            <span class="text-lg font-bold">%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 p-4 bg-red-900 bg-opacity-20 border border-red-600 rounded-lg">
+                <p class="text-red-300 text-sm">⚠️ At least one alert type must be enabled</p>
+            </div>
+        </div>
+
+        <button type="submit" form="emailForm" onclick="saveConfig(event)"
+            class="w-full px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold text-lg transition">
+            💾 Save Configuration
+        </button>
+
+        <div id="message" class="hidden mt-6 p-4 rounded-lg text-center font-semibold"></div>
+
+        <div class="mt-8 p-6 bg-gray-800 rounded-lg border border-gray-700">
+            <h3 class="font-bold mb-2">ℹ️ How It Works</h3>
+            <ul class="text-sm text-gray-400 space-y-1">
+                <li>• Alerts are sent when thresholds are exceeded</li>
+                <li>• 5-minute cooldown between alerts to prevent spam</li>
+                <li>• Each alert contains exact usage % and timestamp</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/email-config');
+                const config = await response.json();
+
+                document.getElementById('recipientEmail').value = config.recipientEmail || '';
+                document.getElementById('enableCPU').checked = config.enableCPU;
+                document.getElementById('enableRAM').checked = config.enableRAM;
+                document.getElementById('enableDisk').checked = config.enableDisk;
+                document.getElementById('cpuThreshold').value = config.cpuThreshold;
+                document.getElementById('ramThreshold').value = config.ramThreshold;
+                document.getElementById('diskThreshold').value = config.diskThreshold;
+            } catch (error) {
+                console.error('Failed to load config:', error);
+            }
+        }
+
+        async function saveConfig(e) {
+            e.preventDefault();
+
+            const enableCPU = document.getElementById('enableCPU').checked;
+            const enableRAM = document.getElementById('enableRAM').checked;
+            const enableDisk = document.getElementById('enableDisk').checked;
+
+            if (!enableCPU && !enableRAM && !enableDisk) {
+                showMessage('❌ At least one alert type must be enabled!', 'error');
+                return;
+            }
+
+            const recipientEmail = document.getElementById('recipientEmail').value;
+
+            if (!recipientEmail) {
+                showMessage('❌ Please enter your email address!', 'error');
+                return;
+            }
+
+            const config = {
+                recipientEmail: recipientEmail,
+                enableCPU: enableCPU,
+                enableRAM: enableRAM,
+                enableDisk: enableDisk,
+                cpuThreshold: parseInt(document.getElementById('cpuThreshold').value),
+                ramThreshold: parseInt(document.getElementById('ramThreshold').value),
+                diskThreshold: parseInt(document.getElementById('diskThreshold').value)
+            };
+
+            try {
+                const response = await fetch('/api/email-config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+
+                const result = await response.json();
+                showMessage('✅ Configuration saved! Alerts are now active.', 'success');
+            } catch (error) {
+                showMessage('❌ Failed to save configuration', 'error');
+            }
+        }
+
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = `mt-6 p-4 rounded-lg text-center font-semibold ${type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`;
+            msg.classList.remove('hidden');
+            setTimeout(() => msg.classList.add('hidden'), 5000);
+        }
+
+        loadConfig();
+    </script>
+</body>
+
+</html>

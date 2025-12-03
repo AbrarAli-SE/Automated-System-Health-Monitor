@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASHM - Main Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .feature-card {
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(59, 130, 246, 0.3);
+        }
+
+        .glow {
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 20px #3b82f6;
+            }
+
+            to {
+                text-shadow: 0 0 30px #10b981;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: .5;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 min-h-screen text-gray-100">
+    <div class="container mx-auto px-6 py-12 max-w-7xl">
+
+        <header class="text-center mb-16">
+            <div class="inline-flex items-center gap-3 mb-6">
+                <div class="pulse w-3 h-3 bg-green-500 rounded-full"></div>
+                <span class="text-green-400 font-semibold text-sm uppercase tracking-wider">System Online</span>
+            </div>
+            <h1
+                class="text-7xl font-black mb-4 glow bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+                ASHM
+            </h1>
+            <p class="text-3xl font-light text-gray-400 mb-2">Automated System Health Monitor</p>
+            <p class="text-gray-500 max-w-2xl mx-auto">
+                Professional diagnostic platform for system analysis and monitoring
+            </p>
+        </header>
+
+        <div id="statusBanner" class="mb-12 p-6 rounded-2xl bg-gradient-to-r from-green-600 to-emerald-600 shadow-2xl">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-1">Status: <span id="systemStatus">Loading...</span>
+                    </h2>
+                    <p class="text-white opacity-90" id="statusMessage">Initializing...</p>
+                </div>
+                <div class="text-5xl">✓</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+
+            <a href="/live" class="feature-card rounded-2xl p-8 border border-gray-700 hover:border-blue-500 block">
+                <div class="text-5xl mb-4">📊</div>
+                <h3 class="text-2xl font-bold mb-3 text-blue-400">Live Monitor</h3>
+                <p class="text-gray-400 mb-4">Real-time system metrics with interactive charts</p>
+                <div class="flex items-center text-blue-400 font-semibold">
+                    Launch Dashboard →
+                </div>
+            </a>
+
+            <div onclick="generateReport()"
+                class="feature-card rounded-2xl p-8 border border-gray-700 hover:border-green-500 cursor-pointer">
+                <div class="text-5xl mb-4">📄</div>
+                <h3 class="text-2xl font-bold mb-3 text-green-400">Static Report</h3>
+                <p class="text-gray-400 mb-4">Generate comprehensive HTML diagnostic report</p>
+                <div class="flex items-center text-green-400 font-semibold">
+                    Generate Report →
+                </div>
+            </div>
+
+            <a href="/battery"
+                class="feature-card rounded-2xl p-8 border border-gray-700 hover:border-yellow-500 block">
+                <div class="text-5xl mb-4">🔋</div>
+                <h3 class="text-2xl font-bold mb-3 text-yellow-400">Battery Report</h3>
+                <p class="text-gray-400 mb-4">Detailed battery health analysis and history</p>
+                <div class="flex items-center text-yellow-400 font-semibold">
+                    View Battery Report →
+                </div>
+            </a>
+
+            <a href="/settings" class="feature-card rounded-2xl p-8 border border-gray-700 hover:border-pink-500 block">
+                <div class="text-5xl mb-4">⚙️</div>
+                <h3 class="text-2xl font-bold mb-3 text-pink-400">Email Settings</h3>
+                <p class="text-gray-400 mb-4">Configure email alerts for critical thresholds</p>
+                <div class="flex items-center text-pink-400 font-semibold">
+                    Configure Alerts →
+                </div>
+            </a>
+
+            <a href="/processes"
+                class="feature-card rounded-2xl p-8 border border-gray-700 hover:border-purple-500 block">
+                <div class="text-5xl mb-4">⚙️</div>
+                <h3 class="text-2xl font-bold mb-3 text-purple-400">Process Monitor</h3>
+                <p class="text-gray-400 mb-4">Track running processes and resource usage</p>
+                <div class="flex items-center text-purple-400 font-semibold">
+                    View Processes →
+                </div>
+            </a>
+
+            <a href="/services" class="feature-card rounded-2xl p-8 border border-gray-700 hover:border-red-500 block">
+                <div class="text-5xl mb-4">🛠️</div>
+                <h3 class="text-2xl font-bold mb-3 text-red-400">Service Monitor</h3>
+                <p class="text-gray-400 mb-4">Monitor Windows services status</p>
+                <div class="flex items-center text-red-400 font-semibold">
+                    View Services →
+                </div>
+            </a>
+
+            <a href="/hardware" class="feature-card rounded-2xl p-8 border border-gray-700 hover:border-cyan-500 block">
+                <div class="text-5xl mb-4">💻</div>
+                <h3 class="text-2xl font-bold mb-3 text-cyan-400">Hardware Info</h3>
+                <p class="text-gray-400 mb-4">Complete hardware inventory</p>
+                <div class="flex items-center text-cyan-400 font-semibold">
+                    View Hardware →
+                </div>
+            </a>
+
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-gray-400 text-sm font-semibold">CPU Usage</span>
+                    <span id="cpuValue" class="text-2xl font-bold text-blue-400">--%</span>
+                </div>
+                <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <div id="cpuBar" class="h-full bg-blue-500 transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-gray-400 text-sm font-semibold">RAM Usage</span>
+                    <span id="ramValue" class="text-2xl font-bold text-green-400">--%</span>
+                </div>
+                <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <div id="ramBar" class="h-full bg-green-500 transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-gray-400 text-sm font-semibold">Disk Usage</span>
+                    <span id="diskValue" class="text-2xl font-bold text-yellow-400">--%</span>
+                </div>
+                <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <div id="diskBar" class="h-full bg-yellow-500 transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mt-16 text-center text-gray-600 border-t border-gray-800 pt-8">
+            <p>ASHM v2.1 - Optimized Performance</p>
+        </footer>
+
+    </div>
+
+    <script>
+        async function updateStatus() {
+            try {
+                const response = await fetch('/api/quick-stats');
+                const data = await response.json();
+
+                document.getElementById('systemStatus').textContent = data.status;
+                document.getElementById('statusMessage').textContent = data.alerts.join(' | ');
+
+                const banner = document.getElementById('statusBanner');
+                if (data.status === 'CRITICAL') {
+                    banner.className = 'mb-12 p-6 rounded-2xl bg-gradient-to-r from-red-600 to-red-700 shadow-2xl';
+                } else if (data.status === 'WARNING') {
+                    banner.className = 'mb-12 p-6 rounded-2xl bg-gradient-to-r from-yellow-600 to-orange-600 shadow-2xl';
+                } else {
+                    banner.className = 'mb-12 p-6 rounded-2xl bg-gradient-to-r from-green-600 to-emerald-600 shadow-2xl';
+                }
+
+                document.getElementById('cpuValue').textContent = data.cpu.usage + '%';
+                document.getElementById('cpuBar').style.width = data.cpu.usage + '%';
+
+                document.getElementById('ramValue').textContent = data.ram.usage + '%';
+                document.getElementById('ramBar').style.width = data.ram.usage + '%';
+
+                if (data.disks.length > 0) {
+                    const avgDisk = data.disks.reduce((sum, d) => sum + d.UsagePercent, 0) / data.disks.length;
+                    document.getElementById('diskValue').textContent = Math.round(avgDisk) + '%';
+                    document.getElementById('diskBar').style.width = avgDisk + '%';
+                }
+            } catch (error) {
+                console.error('Update failed:', error);
+            }
+        }
+
+        function generateReport() {
+            const btn = event.target.closest('.feature-card');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<div class="text-center"><div class="text-5xl mb-4">⏳</div><p class="text-xl">Generating...</p></div>';
+
+            fetch('/generate-report')
+                .then(() => {
+                    btn.innerHTML = '<div class="text-center"><div class="text-5xl mb-4">✓</div><p class="text-xl text-green-400">Report Generated!</p></div>';
+                    setTimeout(() => { btn.innerHTML = originalHTML; }, 3000);
+                })
+                .catch(() => {
+                    btn.innerHTML = originalHTML;
+                });
+        }
+
+        updateStatus();
+        setInterval(updateStatus, 2500);
+    </script>
+</body>
+
+</html>

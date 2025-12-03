@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASHM - Hardware</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-950 text-gray-100">
+    <nav class="bg-gray-900 border-b border-gray-800 px-6 py-4">
+        <div class="flex items-center justify-between max-w-7xl mx-auto">
+            <a href="/"
+                class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">ASHM</a>
+            <a href="/" class="text-gray-400 hover:text-white transition">← Back</a>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-6 py-8 max-w-7xl">
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold mb-2">Hardware Information</h1>
+            <p class="text-gray-400">Complete system inventory</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <h2 class="text-2xl font-bold mb-4 text-blue-400">System</h2>
+                <table id="systemTable" class="w-full text-sm">
+                    <tr>
+                        <td colspan="2" class="py-2">Loading...</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <h2 class="text-2xl font-bold mb-4 text-green-400">Processor</h2>
+                <table id="cpuTable" class="w-full text-sm">
+                    <tr>
+                        <td colspan="2" class="py-2">Loading...</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <h2 class="text-2xl font-bold mb-4 text-purple-400">Display</h2>
+                <table id="displayTable" class="w-full text-sm">
+                    <tr>
+                        <td colspan="2" class="py-2">Loading...</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <h2 class="text-2xl font-bold mb-4 text-cyan-400">Network</h2>
+                <table id="networkTable" class="w-full text-sm">
+                    <tr>
+                        <td colspan="2" class="py-2">Loading...</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="mt-6 bg-gray-800 rounded-xl p-6 border border-gray-700">
+            <h2 class="text-2xl font-bold mb-4 text-yellow-400">RAM Modules</h2>
+            <table class="w-full">
+                <thead class="bg-gray-700">
+                    <tr>
+                        <th class="px-4 py-3 text-left">Slot</th>
+                        <th class="px-4 py-3 text-left">Capacity</th>
+                        <th class="px-4 py-3 text-left">Speed</th>
+                        <th class="px-4 py-3 text-left">Manufacturer</th>
+                    </tr>
+                </thead>
+                <tbody id="ramTable">
+                    <tr>
+                        <td colspan="4" class="text-center py-4">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        async function load() {
+            try {
+                const response = await fetch('/api/full-info');
+                const data = await response.json();
+
+                document.getElementById('systemTable').innerHTML = `
+                    <tr><td class="py-2 text-gray-400">Manufacturer</td><td>${data.system.manufacturer}</td></tr>
+                    <tr><td class="py-2 text-gray-400">Model</td><td>${data.system.model}</td></tr>
+                    <tr><td class="py-2 text-gray-400">OS</td><td>${data.system.os}</td></tr>
+                    <tr><td class="py-2 text-gray-400">Version</td><td>${data.system.version}</td></tr>
+                    <tr><td class="py-2 text-gray-400">Uptime</td><td>${data.system.uptime}</td></tr>
+                `;
+
+                document.getElementById('cpuTable').innerHTML = `
+                    <tr><td class="py-2 text-gray-400">Model</td><td>${data.cpu.name}</td></tr>
+                    <tr><td class="py-2 text-gray-400">Cores</td><td>${data.cpu.cores}</td></tr>
+                    <tr><td class="py-2 text-gray-400">Threads</td><td>${data.cpu.threads}</td></tr>
+                `;
+
+                document.getElementById('displayTable').innerHTML = `
+                    <tr><td class="py-2 text-gray-400">GPU</td><td>${data.display.gpu}</td></tr>
+                    <tr><td class="py-2 text-gray-400">VRAM</td><td>${data.display.vram} MB</td></tr>
+                    <tr><td class="py-2 text-gray-400">Resolution</td><td>${data.display.resolution}</td></tr>
+                `;
+
+                document.getElementById('networkTable').innerHTML = `
+                    <tr><td class="py-2 text-gray-400">Adapter</td><td>${data.network.adapter}</td></tr>
+                    <tr><td class="py-2 text-gray-400">IP</td><td>${data.network.ip}</td></tr>
+                    <tr><td class="py-2 text-gray-400">MAC</td><td>${data.network.mac}</td></tr>
+                `;
+
+                let ramHTML = '';
+                data.ramModules.forEach(m => {
+                    ramHTML += `
+                        <tr class="border-b border-gray-700">
+                            <td class="px-4 py-3">${m.Slot}</td>
+                            <td class="px-4 py-3">${m.Capacity} GB</td>
+                            <td class="px-4 py-3">${m.Speed} MHz</td>
+                            <td class="px-4 py-3">${m.Manufacturer}</td>
+                        </tr>
+                    `;
+                });
+                document.getElementById('ramTable').innerHTML = ramHTML;
+
+            } catch (error) {
+                console.error('Load failed:', error);
+            }
+        }
+
+        load();
+    </script>
+</body>
+
+</html>
