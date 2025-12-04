@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ASHM Live Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:#0b0f14; color:#e5e7eb; }
+    .progress-bar { background:#374151; border-radius:9999px; height:10px; overflow:hidden; }
+    .progress-fill { height:100%; border-radius:9999px; transition: width .4s ease; }
+    .card { background:#111827; border:1px solid #2d3748; padding:1rem; border-radius:12px; }
+  </style>
+</head>
+<body class="p-6">
+  <div class="max-w-6xl mx-auto space-y-6">
+    <header class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-white">ASHM — Live System Health Monitor</h1>
+        <p id="ts" class="text-gray-400 mt-1">Timestamp: --</p>
+      </div>
+      <div>
+        <span id="overall" class="px-4 py-2 rounded-full font-semibold">UNKNOWN</span>
+      </div>
+    </header>
+
+    <!-- Key metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="card">
+        <h3 class="font-semibold">CPU Utilization</h3>
+        <div class="text-3xl font-bold mt-2" id="cpuVal">--%</div>
+        <div class="progress-bar mt-2"><div id="cpuBar" class="progress-fill" style="width:0%; background-color:#22c55e;"></div></div>
+        <div class="text-xs text-gray-400 mt-2">Thresholds: Warning > 75%, Critical > 90%</div>
+      </div>
+
+      <div class="card">
+        <h3 class="font-semibold">RAM Utilization</h3>
+        <div class="text-3xl font-bold mt-2" id="ramVal">--%</div>
+        <div class="text-sm text-gray-400" id="ramTotal">Total: -- GB</div>
+        <div class="progress-bar mt-2"><div id="ramBar" class="progress-fill" style="width:0%; background-color:#22c55e;"></div></div>
+        <div class="text-xs text-gray-400 mt-2">Thresholds: Warning > 75%, Critical > 90%</div>
+      </div>
+
+      <div class="card">
+        <h3 class="font-semibold">Event Errors (24h)</h3>
+        <div class="text-3xl font-bold mt-2" id="eventsVal">--</div>
+        <div class="text-xs text-gray-400 mt-2">Critical threshold &gt; 10 events</div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="card">
+      <h3 class="font-semibold">Resource Utilization</h3>
+      <div style="height:320px;">
+        <canvas id="resourceChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Disks & Top processes -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="card">
+        <h3 class="font-semibold">Storage Details</h3>
+        <div class="overflow-auto mt-2">
+          <table class="w-full text-sm text-left">
+            <thead class="text-gray-300"><tr><th>Volume</th><th>Size(GB)</th><th>Used(GB)</th><th>Usage%</th></tr></thead>
+            <tbody id="diskTable" class="text-white"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="font-semibold">Top 10 CPU Processes</h3>
+        <div class="overflow-auto mt-2">
+          <table class="w-full text-sm text-left">
+            <thead class="text-gray-300"><tr><th>Process</th><th>PID</th><th>CPU</th><th>WorkingSet(MB)</th></tr></thead>
+            <tbody id="procTable" class="text-white"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Services / Hotfixes -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="card">
+        <h3 class="font-semibold">Non-Auto Services</h3>
+        <div class="overflow-auto mt-2 text-sm">
+          <table class="w-full"><thead class="text-gray-300"><tr><th>Name</th><th>StartType</th><th>Status</th></tr></thead><tbody id="svcTable" class="text-white"></tbody></table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="font-semibold">Recent Hotfixes</h3>
+        <div class="mt-2 text-sm text-white" id="hotfixList">--</div>
+      </div>
+    </div>
+
+    <footer class="text-sm text-gray-400">ASHM Live — Local demo. Make sure server.ps1 is running.</footer>
+  </div>
+
+<script>
+const API = "http://localhost:8000/stats";
+let chart = null;
+
+function safe(v, def="--"){ return (v === null || v === undefined) ? def : v; }
+
+function updateUI(data){
+  document.getElementById("ts").innerText = "Timestamp: " + safe(data.timestamp);
+  // overall
+  const overall = safe(data.overallStatus, "UNKNOWN");
+  const overallEl = document.getElementById("overall");
+  overallEl.innerText = overall;
+  if (overall === "CRITICAL") { overallEl.style.backgroundColor = "#ef4444"; overallEl.style.color="#fff" }
+  else if (overall === "WARNING") { overallEl.style.backgroundColor = "#f59e0b"; overallEl.style.color="#000" }
+  else { overallEl.style.backgroundColor = "#16a34a"; overallEl.style.color="#fff" }
+
+  // CPU
+  const cpu = safe(data.cpu?.UsagePercent, 0);
+  document.getElementById("cpuVal").innerText = cpu + "%";
+  const cpuBar = document.getElementById("cpuBar");
+  cpuBar.style.width = Math.min(100, cpu) + "%";
+  cpuBar.style.backgroundColor = (cpu>=90) ? "#ef4444" : (cpu>=75 ? "#f59e0b" : "#22c55e");
+
+  // RAM
+  const ram = safe(data.ram?.UsagePercent, 0);
+  document.getElementById("ramVal").innerText = ram + "%";
+  document.getElementById("ramTotal").innerText = "Total: " + (Math.round((safe(data.ram?.TotalMB,0)/1024)*100)/100) + " GB";
+  const ramBar = document.getElementById("ramBar");
+  ramBar.style.width = Math.min(100, ram) + "%";
+  ramBar.style.backgroundColor = (ram>=90) ? "#ef4444" : (ram>=75 ? "#f59e0b" : "#22c55e");
+
+  // Events
+  document.getElementById("eventsVal").innerText = safe(data.eventErrors24h, 0);
+
+  // Disks
+  const diskT = document.getElementById("diskTable");
+  diskT.innerHTML = "";
+  (data.disks || []).forEach(d => {
+    const row = `<tr>
+      <td class="px-2 py-1">${d.DeviceID}</td>
+      <td class="px-2 py-1">${d.SizeGB}</td>
+      <td class="px-2 py-1">${d.UsedGB}</td>
+      <td class="px-2 py-1">${d.UsagePercent}%</td>
+    </tr>`;
+    diskT.insertAdjacentHTML('beforeend', row);
+  });
+
+  // Processes
+  const procT = document.getElementById("procTable");
+  procT.innerHTML = "";
+  (data.processes || []).forEach(p => {
+    const row = `<tr>
+      <td class="px-2 py-1">${p.Name}</td>
+      <td class="px-2 py-1">${p.Id}</td>
+      <td class="px-2 py-1">${p.CPU}</td>
+      <td class="px-2 py-1">${p.WorkingSetMB}</td>
+    </tr>`;
+    procT.insertAdjacentHTML('beforeend', row);
+  });
+
+  // Services
+  const svcT = document.getElementById("svcTable");
+  svcT.innerHTML = "";
+  (data.services || []).slice(0,40).forEach(s => {
+    const row = `<tr>
+      <td class="px-2 py-1">${s.Name}</td>
+      <td class="px-2 py-1">${s.StartType}</td>
+      <td class="px-2 py-1">${s.Status}</td>
+    </tr>`;
+    svcT.insertAdjacentHTML('beforeend', row);
+  });
+
+  // Hotfixes
+  const hf = (data.hotfixes || []).map(h => `${h.HotfixID} (${h.InstalledOn})`).join("<br/>");
+  document.getElementById("hotfixList").innerHTML = hf || "--";
+
+  // Chart update
+  const cpuVal = Number(cpu) || 0;
+  const ramVal = Number(ram) || 0;
+  if (!chart) {
+    const ctx = document.getElementById('resourceChart').getContext('2d');
+    chart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['CPU Used', 'RAM Used', 'CPU Idle', 'RAM Free'],
+        datasets: [{
+          data: [cpuVal, ramVal, Math.max(0, 100-cpuVal), Math.max(0, 100-ramVal)],
+          backgroundColor: ['rgba(239,68,68,0.8)','rgba(52,211,153,0.8)','rgba(239,68,68,0.2)','rgba(52,211,153,0.2)'],
+          borderColor: '#111827',
+          borderWidth: 2
+        }]
+      },
+      options: { responsive:true, maintainAspectRatio:false }
+    });
+  } else {
+    chart.data.datasets[0].data = [cpuVal, ramVal, Math.max(0, 100-cpuVal), Math.max(0, 100-ramVal)];
+    chart.update();
+  }
+}
+
+async function poll() {
+  try {
+    const res = await fetch(API, { method: 'GET' });
+    if (!res.ok) throw new Error("Network response not ok: " + res.status);
+    const data = await res.json();
+    updateUI(data);
+  } catch (e) {
+    // show minimal error in console
+    console.error("Failed to fetch stats:", e);
+  }
+}
+
+// Start polling
+poll();
+setInterval(poll, 2000); // every 2 seconds
+</script>
+
+</body>
+</html>
